@@ -3,7 +3,8 @@ from NovaApi.ExecuteAction.LocateTracker.location_request import get_location_da
 
 def update_device(device_name, canonic_id):
     print(f"Updating device {device_name}...")
-    get_location_data_for_device(canonic_id, device_name)[0]
+    locations = get_location_data_for_device(canonic_id, device_name)
+    print(locations)
 
 def update_mqtt():
     print("Refreshing device list...")
