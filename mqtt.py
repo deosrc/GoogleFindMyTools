@@ -1,4 +1,9 @@
 from NovaApi.ListDevices.nbe_list_devices import get_devices
+from NovaApi.ExecuteAction.LocateTracker.location_request import get_location_data_for_device
+
+def update_device(device_name, canonic_id):
+    print(f"Updating device {device_name}...")
+    get_location_data_for_device(canonic_id, device_name)[0]
 
 def update_mqtt():
     print("Refreshing device list...")
@@ -6,8 +11,11 @@ def update_mqtt():
     devices = get_devices()
     print(f"Retrieved {len(devices)} devices")
 
-    for idx, (device_name, canonic_id) in enumerate(devices, start=1):
-        print(f"{idx}: {device_name}")
+    for device_name, canonic_id in devices:
+        update_device(device_name, canonic_id)
+
+    print("Device updates complete")
+
 
 if __name__ == '__main__':
     print("Starting MQTT mode...")
