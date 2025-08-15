@@ -4,6 +4,7 @@
 #
 
 import asyncio
+import time
 
 from Auth.fcm_receiver import FcmReceiver
 from NovaApi.ExecuteAction.LocateTracker.decrypt_locations import decrypt_location_response_locations
@@ -14,6 +15,10 @@ from NovaApi.util import generate_random_uuid
 from ProtoDecoders import DeviceUpdate_pb2
 from ProtoDecoders.decoder import parse_device_update_protobuf
 from example_data_provider import get_example_data
+
+
+__timeout = 10
+
 
 def create_location_request(canonic_device_id, fcm_registration_id, request_uuid):
 
@@ -50,8 +55,13 @@ def get_location_data_for_device(canonic_device_id, name):
     hex_payload = create_location_request(canonic_device_id, fcm_token, request_uuid)
     nova_request(NOVA_ACTION_API_SCOPE, hex_payload)
 
-    while result is None:
+    start = time.monotonic()
+    while result is None and time.monotonic() - start < __timeout:
         asyncio.get_event_loop().run_until_complete(asyncio.sleep(0.1))
+
+    if not result:
+        print("Request timed out")
+        return None
 
     return decrypt_location_response_locations(result)
 
