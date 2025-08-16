@@ -1,4 +1,5 @@
 import os
+from time import sleep
 from NovaApi.ListDevices.nbe_list_devices import get_devices
 from NovaApi.ExecuteAction.LocateTracker.location_request import get_location_data_for_device
 from NovaApi.ExecuteAction.LocateTracker.decrypted_location import WrappedLocation
@@ -38,4 +39,7 @@ def update_mqtt():
 
 if __name__ == '__main__':
     print("Starting MQTT mode...")
-    update_mqtt()
+
+    while True:
+        update_mqtt()
+        sleep(60)
