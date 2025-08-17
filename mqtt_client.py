@@ -56,7 +56,13 @@ class MqttClient:
                 "unique_id": canonic_id,
                 "name": device_name,
                 "json_attributes_topic": self._get_topic(canonic_id, MqttClient.TOPIC_TYPE_LOCATION),
-                "source_type": "bluetooth_le"
+                "source_type": "bluetooth_le",
+                "device": {
+                    "name": device_name,
+                    "identifiers": [
+                        canonic_id
+                    ]
+                }
             }))
 
     def send_error_update(self, canonic_id, device_name, err) -> None:
