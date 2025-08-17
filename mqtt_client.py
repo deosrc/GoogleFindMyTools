@@ -76,7 +76,7 @@ class MqttClient:
             device_name)
         self._client.publish(
             self._get_topic(canonic_id, MqttClient.TOPIC_TYPE_ERROR),
-            err)
+            str(err))
 
     def _ensure_connected(self):
         if self._connection_status == ConnectionStatus.CONNECTED:
