@@ -15,6 +15,7 @@ class MqttClient:
 
     TOPIC_TYPE_NAME = "name"
     TOPIC_TYPE_LOCATION = "location"
+    TOPIC_TYPE_ERROR = "error"
 
     def __init__(self, host: str, username: str, password: str):
         self._host = host
