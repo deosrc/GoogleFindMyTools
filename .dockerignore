@@ -1,0 +1,9 @@
+__pycache__
+.venv
+venv
+/Crypto
+/DynamicAnalysis
+/.idea
+/DULT/OwnerLookup/Results
+/Auth/secrets.json
+/example_data.json
