@@ -50,6 +50,7 @@ class MqttClient:
         self._client.publish(
             f"homeassistant/device_tracker/googlefind/{canonic_id}/config",
             json.dumps({
+                "unique_id": canonic_id,
                 "name": device_name,
                 "json_attributes_topic": self._get_topic(canonic_id, MqttClient.TOPIC_TYPE_LOCATION),
             }))
