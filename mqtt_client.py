@@ -45,7 +45,7 @@ class MqttClient:
                 "latitude": location.latitude,
                 "longitude": location.longitude,
                 "altitude": location.altitude,
-                "time": datetime.fromtimestamp(location.time).strftime('%Y-%m-%d %H:%M:%S'),
+                "last_seen": datetime.fromtimestamp(location.time).strftime('%Y-%m-%d %H:%M:%S'),
                 "mqtt_source": "google-find"
             }))
 
