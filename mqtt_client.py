@@ -4,6 +4,7 @@ from paho.mqtt.enums import MQTTErrorCode, MQTTProtocolVersion
 from random import randint
 import json
 import paho.mqtt.client as mqtt
+from ProtoDecoders.decoder import DeviceInfo
 
 from NovaApi.ExecuteAction.LocateTracker.decrypted_location import WrappedLocation
 
@@ -30,17 +31,17 @@ class MqttClient:
             protocol=MQTTProtocolVersion.MQTTv5)
         self._client.username_pw_set(username, password)
 
-    def send_update(self, canonic_id: str, device_name: str, location: WrappedLocation) -> None:
+    def send_update(self, device_info: DeviceInfo, location: WrappedLocation) -> None:
         self._ensure_connected()
         if self._connection_status != ConnectionStatus.CONNECTED:
             return
 
         # Publish device information
         self._client.publish(
-            self._get_topic(canonic_id, MqttClient.TOPIC_TYPE_NAME),
-            device_name)
+            self._get_topic(device_info.canonic_id, MqttClient.TOPIC_TYPE_NAME),
+            device_info.name)
         self._client.publish(
-            self._get_topic(canonic_id, MqttClient.TOPIC_TYPE_LOCATION),
+            self._get_topic(device_info.canonic_id, MqttClient.TOPIC_TYPE_LOCATION),
             json.dumps({
                 "latitude": location.latitude,
                 "longitude": location.longitude,
@@ -51,31 +52,33 @@ class MqttClient:
 
         # Publish Home Assistant discovery topic
         self._client.publish(
-            f"homeassistant/device_tracker/googlefind/{canonic_id}/config",
+            f"homeassistant/device_tracker/googlefind/{device_info.canonic_id}/config",
             json.dumps({
-                "unique_id": canonic_id,
-                "name": device_name,
-                "json_attributes_topic": self._get_topic(canonic_id, MqttClient.TOPIC_TYPE_LOCATION),
+                "unique_id": device_info.canonic_id,
+                "name": device_info.name,
+                "json_attributes_topic": self._get_topic(device_info.canonic_id, MqttClient.TOPIC_TYPE_LOCATION),
                 "source_type": "bluetooth_le",
                 "device": {
-                    "name": device_name,
+                    "name": device_info.name,
                     "identifiers": [
-                        canonic_id
-                    ]
+                        device_info.canonic_id
+                    ],
+                    "manufacturer": device_info.manufacturer,
+                    "model": device_info.model
                 }
             }))
 
-    def send_error_update(self, canonic_id, device_name, err) -> None:
+    def send_error_update(self, device_info: DeviceInfo, err) -> None:
         self._ensure_connected()
         if self._connection_status != ConnectionStatus.CONNECTED:
             return
 
         # Publish device information
         self._client.publish(
-            self._get_topic(canonic_id, MqttClient.TOPIC_TYPE_NAME),
-            device_name)
+            self._get_topic(device_info.canonic_id, MqttClient.TOPIC_TYPE_NAME),
+            device_info.name)
         self._client.publish(
-            self._get_topic(canonic_id, MqttClient.TOPIC_TYPE_ERROR),
+            self._get_topic(device_info.canonic_id, MqttClient.TOPIC_TYPE_ERROR),
             str(err))
 
     def _ensure_connected(self):

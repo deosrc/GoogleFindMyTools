@@ -4,6 +4,7 @@
 #
 
 import binascii
+from dataclasses import dataclass
 import subprocess
 
 from google.protobuf import text_format
@@ -12,6 +13,15 @@ import pytz
 
 from ProtoDecoders import DeviceUpdate_pb2, LocationReportsUpload_pb2
 from example_data_provider import get_example_data
+from ProtoDecoders.DeviceUpdate_pb2 import DeviceMetadata
+
+
+@dataclass
+class DeviceInfo():
+    canonic_id: str
+    name: str
+    manufacturer: str
+    model: str
 
 
 # Custom message formatter to print the Protobuf byte fields as hex strings
@@ -70,7 +80,7 @@ def parse_device_list_protobuf(hex_string):
 def get_canonic_ids(device_list):
     result = []
     for device in device_list.deviceMetadata:
-        if device.identifierInformation.type == DeviceUpdate_pb2.IDENTIFIER_ANDROID: 
+        if device.identifierInformation.type == DeviceUpdate_pb2.IDENTIFIER_ANDROID:
             canonic_ids = device.identifierInformation.phoneInformation.canonicIds.canonicId
         else:
             canonic_ids = device.identifierInformation.canonicIds.canonicId
@@ -78,6 +88,20 @@ def get_canonic_ids(device_list):
         for canonic_id in canonic_ids:
             result.append((device_name, canonic_id.id))
     return result
+
+
+def get_device_info(device: DeviceMetadata):
+    if device.identifierInformation.type == DeviceUpdate_pb2.IDENTIFIER_ANDROID:
+        canonic_id = device.identifierInformation.phoneInformation.canonicIds.canonicId
+    else:
+        canonic_id = device.identifierInformation.canonicIds.canonicId
+
+    return DeviceInfo(
+        next(iter(canonic_id)).id,
+        device.userDefinedDeviceName,
+        device.information.deviceRegistration.manufacturer,
+        device.information.deviceRegistration.model
+    )
 
 
 def print_location_report_upload_protobuf(hex_string):
