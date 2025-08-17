@@ -43,7 +43,8 @@ class MqttClient:
             json.dumps({
                 "latitude": location.latitude,
                 "longitude": location.longitude,
-                "altitude": location.altitude
+                "altitude": location.altitude,
+                "mqtt_source": "google-find"
             }))
 
         # Publish Home Assistant discovery topic
