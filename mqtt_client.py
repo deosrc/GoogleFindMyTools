@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 from paho.mqtt.enums import MQTTErrorCode, MQTTProtocolVersion
 from random import randint
@@ -44,6 +45,7 @@ class MqttClient:
                 "latitude": location.latitude,
                 "longitude": location.longitude,
                 "altitude": location.altitude,
+                "time": datetime.fromtimestamp(location.time).strftime('%Y-%m-%d %H:%M:%S'),
                 "mqtt_source": "google-find"
             }))
 
