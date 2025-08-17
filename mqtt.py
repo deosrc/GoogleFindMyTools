@@ -11,6 +11,8 @@ mqtt = MqttClient(
     os.environ["MQTT_USERNAME"],
     os.environ["MQTT_PASSWORD"])
 
+update_interval=int(os.environ.get('UPDATE_INTERVAL', '120'))
+
 def update_device(device_name, canonic_id):
     print(f"Updating device {device_name}...")
     try:
@@ -42,4 +44,4 @@ if __name__ == '__main__':
 
     while True:
         update_mqtt()
-        sleep(60)
+        sleep(update_interval)
