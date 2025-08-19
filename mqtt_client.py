@@ -55,7 +55,6 @@ class MqttClient:
             f"homeassistant/device_tracker/googlefind/{device_info.canonic_id}/config",
             json.dumps({
                 "unique_id": device_info.canonic_id,
-                "name": device_info.name,
                 "json_attributes_topic": self._get_topic(device_info.canonic_id, MqttClient.TOPIC_TYPE_LOCATION),
                 "source_type": "bluetooth_le",
                 "device": {
