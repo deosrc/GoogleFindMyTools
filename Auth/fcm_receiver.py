@@ -131,10 +131,7 @@ class FcmReceiver:
         self._loop_thread.start()
 
         # Register for FCM first (blocking)
-        temp_loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(temp_loop)
-        temp_loop.run_until_complete(self._register_for_fcm())
-        temp_loop.close()
+        asyncio.run(self._register_for_fcm())
 
         # Now start the listener in the background loop
         asyncio.run_coroutine_threadsafe(self.pc.start(), self._loop)

@@ -3,7 +3,6 @@
 #  Copyright © 2024 Leon Böttger. All rights reserved.
 #
 
-import asyncio
 import time
 
 from Auth.fcm_receiver import FcmReceiver
@@ -57,7 +56,7 @@ def get_location_data_for_device(canonic_device_id, name):
 
     start = time.monotonic()
     while result is None and time.monotonic() - start < __timeout:
-        asyncio.get_event_loop().run_until_complete(asyncio.sleep(0.1))
+        time.sleep(0.1)
 
     if not result:
         print("Request timed out")
