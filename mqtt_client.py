@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import Enum
+import logging
 from paho.mqtt.enums import MQTTErrorCode, MQTTProtocolVersion
 from random import randint
 import json
@@ -7,6 +8,9 @@ import paho.mqtt.client as mqtt
 from ProtoDecoders.decoder import DeviceInfo
 
 from NovaApi.ExecuteAction.LocateTracker.decrypted_location import WrappedLocation
+
+_LOGGER = logging.getLogger(__name__)
+
 
 class ConnectionStatus(Enum):
     ERROR = -1
@@ -24,6 +28,7 @@ class MqttClient:
 
         self._connection_status = ConnectionStatus.DISCONNECTED
         self._client_id = f'google-find-{randint(0, 65535)}'
+        _LOGGER.info('MQTT Client Id: %s', self._client_id)
 
         self._client = mqtt.Client(
             mqtt.CallbackAPIVersion.VERSION2,
@@ -37,6 +42,7 @@ class MqttClient:
             return
 
         # Publish device information
+        _LOGGER.info('Publishing MQTT value for \'%s\'...', device_info.name)
         self._client.publish(
             self._get_topic(device_info.canonic_id, MqttClient.TOPIC_TYPE_NAME),
             device_info.name)
@@ -51,6 +57,7 @@ class MqttClient:
             }))
 
         # Publish Home Assistant discovery topic
+        _LOGGER.info('Publishing Home Assistant discovery topic...')
         self._client.publish(
             f"homeassistant/device_tracker/googlefind/{device_info.canonic_id}/config",
             json.dumps({
@@ -66,6 +73,7 @@ class MqttClient:
                     "model": device_info.model
                 }
             }))
+        _LOGGER.info('MQTT update complete for \'%s\'', device_info.name)
 
     def send_error_update(self, device_info: DeviceInfo, err) -> None:
         self._ensure_connected()
@@ -73,6 +81,7 @@ class MqttClient:
             return
 
         # Publish device information
+        _LOGGER.info('Sending failure MQTT message for \'%s\'', device_info.name)
         self._client.publish(
             self._get_topic(device_info.canonic_id, MqttClient.TOPIC_TYPE_NAME),
             device_info.name)
@@ -82,12 +91,16 @@ class MqttClient:
 
     def _ensure_connected(self):
         if self._connection_status == ConnectionStatus.CONNECTED:
+            _LOGGER.info('MQTT is already connected.')
             return
 
+        _LOGGER.info('Connecting to MQTT...')
         result = self._client.connect(self._host)
         if result == MQTTErrorCode.MQTT_ERR_SUCCESS:
+            _LOGGER.info('MQTT connection successful.')
             self._connection_status = ConnectionStatus.CONNECTED
         else:
+            _LOGGER.error('Failed to connect to MQTT.')
             self._connection_status == ConnectionStatus.ERROR
 
     def _get_topic(self, canonic_id: str, type: str) -> str:
